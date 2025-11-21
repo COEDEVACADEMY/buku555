@@ -1,98 +1,172 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
+import { getDebts, saveDebts } from '../../lib/storage';
+import { useIsFocused } from '@react-navigation/native';
+import { Plus, Trash2 } from '@tamagui/lucide-icons';
+import { Button, Card, Dialog, H2, Input, Paragraph, Spinner, XStack, YStack } from 'tamagui';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const HomeScreen = () => {
+  const [totalOwed, setTotalOwed] = useState(0);
+  const [totalPaid, setTotalPaid] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [name, setName] = useState('');
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const isFocused = useIsFocused();
 
-export default function HomeScreen() {
+  const fetchSummary = async () => {
+    setIsLoading(true);
+    try {
+        const allDebts = await getDebts();
+        if (allDebts && allDebts.length > 0) {
+          const notPaid = allDebts.filter(debt => !debt.paid);
+          const paid = allDebts.filter(debt => debt.paid);
+
+          const owed = notPaid.reduce((acc, debt) => acc + debt.amount, 0);
+          const paidAmount = paid.reduce((acc, debt) => acc + debt.amount, 0);
+
+          setTotalOwed(owed);
+          setTotalPaid(paidAmount);
+        } else {
+          setTotalOwed(0);
+          setTotalPaid(0);
+        }
+    } catch (error) {
+        console.error("Error fetching summary:", error);
+        setTotalOwed(0);
+        setTotalPaid(0);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  const handleClearDebts = async () => {
+    try {
+        await saveDebts([]);
+        fetchSummary();
+        Alert.alert('Berjaya', 'Semua rekod telah dipadam.');
+    } catch (error) {
+        console.error("Error clearing debts:", error);
+        Alert.alert('Ralat', 'Gagal memadam rekod.');
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchSummary();
+    }
+  }, [isFocused]);
+
+  const handleAddDebt = async () => {
+    if (!name || !amount) {
+      Alert.alert('Ralat', 'Nama dan jumlah diperlukan.');
+      return;
+    }
+
+    try {
+        const currentDebts = await getDebts();
+        const newDebt = {
+          id: Date.now(),
+          name,
+          amount: parseFloat(amount),
+          description,
+          paid: false,
+          createdAt: Date.now(),
+        };
+
+        const updatedDebts = [...(currentDebts || []), newDebt];
+        await saveDebts(updatedDebts);
+
+        setName('');
+        setAmount('');
+        setDescription('');
+        fetchSummary();
+        setDialogOpen(false);
+
+        Alert.alert('Berjaya', 'Hutang berjaya ditambah.');
+    } catch (error) {
+        console.error("Error adding debt:", error);
+        Alert.alert('Ralat', 'Gagal menambah hutang.');
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
+    <YStack flex={1} backgroundColor="$background" padding="$4" space="$4">
+      <Card elevate size="$4">
+        <Card.Header>
+            <H2>Jumlah Hutang</H2>
+            {isLoading ? <Spinner /> : <Paragraph theme="alt2">RM{totalOwed.toFixed(2)}</Paragraph>}
+        </Card.Header>
+      </Card>
+      <Card elevate size="$4">
+        <Card.Header>
+            <H2>Jumlah Dibayar</H2>
+            {isLoading ? <Spinner /> : <Paragraph theme="alt2">RM{totalPaid.toFixed(2)}</Paragraph>}
+        </Card.Header>
+      </Card>
+
+      <Dialog modal open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog.Trigger asChild>
+              <Button icon={Plus}>Tambah Hutang Baru</Button>
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+              <Dialog.Overlay
+                  key="overlay"
+                  animation="quick"
+                  opacity={0.5}
+                  enterStyle={{ opacity: 0 }}
+                  exitStyle={{ opacity: 0 }}
               />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+              <Dialog.Content
+                  bordered
+                  elevate
+                  key="content"
+                  animation={[
+                      'quick',
+                      {
+                          opacity: {
+                              overshoot: -0.5,
+                          },
+                      },
+                  ]}
+                  enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                  exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                  space="$4"
+              >
+                  <Dialog.Title>Tambah Hutang Baru</Dialog.Title>
+                  <Dialog.Description>
+                      Masukkan maklumat hutang baru di bawah.
+                  </Dialog.Description>
+                  <Input placeholder="Nama" value={name} onChangeText={setName} />
+                  <Input placeholder="Jumlah (RM)" value={amount} onChangeText={setAmount} keyboardType="numeric" />
+                  <Input placeholder="Penerangan" value={description} onChangeText={setDescription} />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+                  <XStack alignSelf="flex-end" space="$2">
+                      <Dialog.Close asChild>
+                          <Button variant="outlined" aria-label="Close">
+                              Batal
+                          </Button>
+                      </Dialog.Close>
+                      <Button
+                        theme="active"
+                        onPress={handleAddDebt}
+                      >
+                        Tambah
+                      </Button>
+                  </XStack>
+              </Dialog.Content>
+          </Dialog.Portal>
+      </Dialog>
+
+      <Button icon={Trash2} chromeless onPress={handleClearDebts}>
+          Padam Semua Rekod
+      </Button>
+
+    </YStack>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+export default HomeScreen;
+ 
