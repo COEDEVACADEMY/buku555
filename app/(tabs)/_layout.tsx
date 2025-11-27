@@ -79,21 +79,21 @@ export default function TabLayout() {
           name="index"
           options={{
             header: () => <CustomHeader title="Utama" />,
-            tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
+            tabBarIcon: ({ color, size }: { color: string; size: number }) => <Ionicons name="home-outline" color={color} size={size} />,
           }}
         />
         <Tabs.Screen
           name="not-paid"
           options={{
             header: () => <CustomHeader title="Belum Dibayar" />,
-            tabBarIcon: ({ color, size }) => <Ionicons name="list-outline" color={color} size={size} />,
+            tabBarIcon: ({ color, size }: { color: string; size: number }) => <Ionicons name="list-outline" color={color} size={size} />,
           }}
         />
         <Tabs.Screen
           name="paid"
           options={{
             header: () => <CustomHeader title="Sudah Dibayar" />,
-            tabBarIcon: ({ color, size }) => <Ionicons name="checkmark-done-outline" color={color} size={size} />,
+            tabBarIcon: ({ color, size }: { color: string; size: number }) => <Ionicons name="checkmark-done-outline" color={color} size={size} />,
           }}
         />
       </Tabs>

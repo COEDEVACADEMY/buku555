@@ -12,7 +12,7 @@ import {
 import { getDebts, saveDebts } from '../../lib/storage';
 import { useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { AdMobBanner } from 'expo-ads-admob';
+import GoogleBannerAd from '../../components/GoogleBannerAd';
 
 const HomeScreen = () => {
   const [totalOwed, setTotalOwed] = useState(0);
@@ -91,6 +91,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <GoogleBannerAd />
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Jumlah Hutang</Text>
         {isLoading ? (
@@ -115,15 +116,6 @@ const HomeScreen = () => {
         <Ionicons name="add" size={20} color="white" />
         <Text style={styles.buttonText}>Tambah Hutang Baru</Text>
       </TouchableOpacity>
-
-      <View style={styles.adContainer}>
-        <AdMobBanner
-          bannerSize="fullBanner"
-          adUnitID="ca-app-pub-7556071990692700/7707767494"
-          servePersonalizedAds // true or false
-          onDidFailToReceiveAdWithError={(e) => console.log(e)}
-        />
-      </View>
 
       <Modal
         animationType="slide"
@@ -218,11 +210,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     marginLeft: 8,
-  },
-  adContainer: {
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 16,
   },
   centeredView: {
     flex: 1,

@@ -1,8 +1,8 @@
-{
+module.exports = {
   "expo": {
     "name": "Buku 555",
     "slug": "buku-555",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "buku555",
@@ -10,23 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-7556071990692700~5301219719"
-      }
+      "bundleIdentifier": "com.coedevtech.buku555"
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#F5DEB3",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.coedevtech.buku555",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-7556071990692700~5301219719"
-      }
+      "package": "com.coedevtech.buku555"
     },
     "web": {
       "output": "static",
@@ -45,7 +34,13 @@
           }
         }
       ],
-      "expo-ads-admob"
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7556071990692700~5301219719",
+          "iosAppId": "ca-app-pub-7556071990692700~5301219719"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

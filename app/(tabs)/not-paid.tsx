@@ -3,7 +3,7 @@ import { getDebts, saveDebts, Debt } from '../../lib/storage';
 import { useIsFocused } from '@react-navigation/native';
 import DebtList from '../../components/DebtList';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { AdMobBanner } from 'expo-ads-admob';
+import GoogleBannerAd from '../../components/GoogleBannerAd';
 
 const NotPaidScreen = () => {
   const [notPaidDebts, setNotPaidDebts] = useState<Debt[] | null>(null);
@@ -51,6 +51,7 @@ const NotPaidScreen = () => {
 
   return (
     <View style={styles.mainContainer}>
+        <GoogleBannerAd />
         <DebtList 
             debts={notPaidDebts}
             onPressAction={handleMarkAsPaid}
@@ -58,14 +59,6 @@ const NotPaidScreen = () => {
             emptyMessage="Tiada hutang yang belum dibayar."
             isPaid={false}
         />
-        <View style={styles.adContainer}>
-            <AdMobBanner
-              bannerSize="fullBanner"
-              adUnitID="ca-app-pub-7556071990692700/7707767494"
-              servePersonalizedAds
-              onDidFailToReceiveAdWithError={(e) => console.log(e)}
-            />
-        </View>
     </View>
   );
 };
@@ -79,11 +72,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  adContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-  }
 });
 
 export default NotPaidScreen;

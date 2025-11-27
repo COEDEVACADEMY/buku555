@@ -5,9 +5,20 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@expo/vector-icons": [
+        "./node_modules/@expo/vector-icons"
+      ],
+      "@react-navigation/native": [
+        "./node_modules/@react-navigation/native"
       ]
     },
-    "jsx": "react-native"
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ]
   },
   "include": [
     "**/*.ts",
