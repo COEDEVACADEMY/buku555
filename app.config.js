@@ -15,7 +15,12 @@ module.exports = {
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.coedevtech.buku555"
+      "package": "com.coedevtech.buku555",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png",
+        "backgroundColor": "#F5DEB3"
+      }
     },
     "web": {
       "output": "static",
@@ -37,8 +42,7 @@ module.exports = {
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-7556071990692700~5301219719",
-          "iosAppId": "ca-app-pub-7556071990692700~5301219719"
+          "android_app_id": "ca-app-pub-7556071990692700~5301219719"
         }
       ]
     ],
